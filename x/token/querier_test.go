@@ -1,6 +1,8 @@
 package token
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/okex/okexchain/x/token/types"
@@ -427,4 +429,15 @@ func TestCreateParam(t *testing.T) {
 	require.NotNil(t, kepper)
 	require.NotNil(t, kv)
 	require.EqualValues(t, "testToken", string(data))
+}
+
+func TestCalculateGas(t *testing.T) {
+	ff := abci.Header{
+		ChainID: "df",
+		Height:  1,
+	}
+	bz, _ := types.ModuleCdc.MarshalJSON(ff)
+	fmt.Println(string(bz))
+	bz2, _ := json.Marshal(ff)
+	fmt.Println(string(bz2))
 }

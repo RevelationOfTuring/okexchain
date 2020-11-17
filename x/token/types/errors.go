@@ -7,16 +7,20 @@ import (
 )
 
 const (
-	CodeInvalidPriceDigit       sdk.CodeType = 1
-	CodeInvalidMinTradeSize     sdk.CodeType = 2
-	CodeInvalidDexList          sdk.CodeType = 3
-	CodeInvalidBalanceNotEnough sdk.CodeType = 4
-	CodeInvalidHeight           sdk.CodeType = 5
-	CodeInvalidAsset            sdk.CodeType = 6
-	CodeInvalidCommon           sdk.CodeType = 7
-	CodeBlockedRecipient        sdk.CodeType = 8
-	CodeSendDisabled            sdk.CodeType = 9
+	CodeParamTokenUnknown       sdk.CodeType = 61000
+	CodeInvalidDexList          sdk.CodeType = 61001
+	CodeInvalidBalanceNotEnough sdk.CodeType = 61002
+	CodeInvalidHeight           sdk.CodeType = 61003
+	CodeInvalidAsset            sdk.CodeType = 61004
+	CodeInvalidCommon           sdk.CodeType = 61005
+	CodeBlockedRecipient        sdk.CodeType = 61006
+	CodeSendDisabled            sdk.CodeType = 61007
 )
+
+// ErrParamTokenUnknown returns an error when receive a unknown token
+func ErrParamTokenUnknown(codespace sdk.CodespaceType, msg string) sdk.Error {
+	return sdk.NewError(codespace, CodeParamTokenUnknown, "param token unknown %s", msg)
+}
 
 // ErrBlockedRecipient returns an error when a transfer is tried on a blocked recipient
 func ErrBlockedRecipient(codespace sdk.CodespaceType, blockedAddr string) sdk.Error {

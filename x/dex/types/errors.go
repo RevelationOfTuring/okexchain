@@ -8,15 +8,17 @@ import (
 
 // const CodeType
 const (
-	codeInvalidProduct          sdk.CodeType = 1
-	codeTokenPairNotFound       sdk.CodeType = 2
-	codeDelistOwnerNotMatch     sdk.CodeType = 3
-	codeInvalidBalanceNotEnough sdk.CodeType = 4
-	codeInvalidAsset            sdk.CodeType = 5
-	codeUnknownOperator         sdk.CodeType = 6
-	codeExistOperator           sdk.CodeType = 7
-	codeInvalidWebsiteLength    sdk.CodeType = 8
-	codeInvalidWebsiteURL       sdk.CodeType = 9
+	CodeAddrAndProductAllRequired sdk.CodeType = 64000
+	codeInvalidProduct            sdk.CodeType = 64001
+	codeTokenPairNotFound         sdk.CodeType = 64002
+	codeDelistOwnerNotMatch       sdk.CodeType = 64003
+	codeInvalidBalanceNotEnough   sdk.CodeType = 64004
+	codeInvalidAsset              sdk.CodeType = 64005
+	codeUnknownOperator           sdk.CodeType = 64006
+	codeExistOperator             sdk.CodeType = 64007
+	codeInvalidWebsiteLength      sdk.CodeType = 64008
+	codeInvalidWebsiteURL         sdk.CodeType = 64009
+	CodeTokenPairIsInvalid        sdk.CodeType = 64010
 )
 
 // CodeType to Message
@@ -31,6 +33,16 @@ func codeToDefaultMsg(code sdk.CodeType) string {
 	default:
 		return fmt.Sprintf("unknown code %d", code)
 	}
+}
+
+// Addr and Product All Required
+func ErrAddrAndProductAllRequired() sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeAddrAndProductAllRequired, "bad request: address、base_asset and quote_asset could not be empty at the same time")
+}
+
+// invalid tokenpair
+func ErrTokenPairIsInvalid() sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeTokenPairIsInvalid, "the nil pointer is not expected")
 }
 
 // ErrInvalidProduct returns invalid product error
