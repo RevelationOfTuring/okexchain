@@ -255,7 +255,7 @@ func queryOperator(ctx sdk.Context, req abci.RequestQuery, keeper IKeeper) ([]by
 
 	bz, err := codec.MarshalJSONIndent(types.ModuleCdc, operator)
 	if err != nil {
-		common.ErrMarshalJSONFailed(err.Error())
+		return nil, common.ErrMarshalJSONFailed(err.Error())
 	}
 	return bz, nil
 }

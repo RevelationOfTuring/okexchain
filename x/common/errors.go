@@ -15,7 +15,8 @@ const (
 	CodeInvalidPaginateParam       sdk.CodeType = 60002
 	CodeCreateAddrFromBech32Failed sdk.CodeType = 60003
 	CodeMarshalJSONFailed          sdk.CodeType = 60004
-	CodeUnMarshalJSONFailed        sdk.CodeType = 60005
+	CodeUnMarshalJSONFailed        sdk.CodeType = 60005 //"incorrectly formatted request data", err.Error()
+	CodeStrconvFailed              sdk.CodeType = 60006
 )
 
 type SDKError struct {
@@ -55,5 +56,5 @@ func ErrMarshalJSONFailed(msg string) sdk.Error {
 
 // could not unmarshal result to origin
 func ErrUnMarshalJSONFailed(msg string) sdk.Error {
-	return sdk.NewError(DefaultCodespace, CodeUnMarshalJSONFailed, fmt.Sprintf("UnMarshal JSON failed, %s", msg))
+	return sdk.NewError(DefaultCodespace, CodeUnMarshalJSONFailed, fmt.Sprintf("incorrectly formatted request data, %s", msg))
 }
