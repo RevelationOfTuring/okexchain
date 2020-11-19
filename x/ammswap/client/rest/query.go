@@ -3,6 +3,9 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,8 +13,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/okex/okexchain/x/ammswap/types"
 	"github.com/okex/okexchain/x/common"
-	"net/http"
-	"strings"
 )
 
 func registerQueryRoutes(cliCtx context.CLIContext, r *mux.Router) {
@@ -30,7 +31,8 @@ func querySwapTokenPairHandler(cliContext context.CLIContext) func(http.Response
 
 		res, _, err := cliContext.QueryWithData(fmt.Sprintf("custom/%s/%s/%s/%s", types.QuerierRoute, types.QuerySwapTokenPair, baseToken, quoteToken), nil)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			sdkErr := common.ParseSDKError(err.Error())
+			common.HandleErrorMsg(w, cliContext, sdkErr.Code, sdkErr.Message)
 			return
 		}
 
@@ -44,7 +46,8 @@ func querySwapTokenPairsHandler(cliContext context.CLIContext) func(http.Respons
 
 		res, _, err := cliContext.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QuerySwapTokenPairs), nil)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			sdkErr := common.ParseSDKError(err.Error())
+			common.HandleErrorMsg(w, cliContext, sdkErr.Code, sdkErr.Message)
 			return
 		}
 
@@ -58,7 +61,8 @@ func queryParamsHandler(cliContext context.CLIContext) func(http.ResponseWriter,
 
 		res, _, err := cliContext.QueryWithData(fmt.Sprintf("custom/%s/params", types.QuerierRoute), nil)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			sdkErr := common.ParseSDKError(err.Error())
+			common.HandleErrorMsg(w, cliContext, sdkErr.Code, sdkErr.Message)
 			return
 		}
 
@@ -74,7 +78,7 @@ func queryBuyAmountHandler(cliContext context.CLIContext) func(http.ResponseWrit
 
 		sellToken, err := sdk.ParseDecCoin(soldTokenStr)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			common.HandleErrorMsg(w, cliContext, common.CodeParseDecCoinFailed, err.Error())
 			return
 		}
 		params := types.QueryBuyAmountParams{
@@ -83,12 +87,13 @@ func queryBuyAmountHandler(cliContext context.CLIContext) func(http.ResponseWrit
 		}
 		bz, err := codec.Cdc.MarshalJSON(params)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			common.HandleErrorMsg(w, cliContext, common.CodeMarshalJSONFailed, err.Error())
 			return
 		}
 		res, _, err := cliContext.QueryWithData(fmt.Sprintf("custom/%s/%s", types.QuerierRoute, types.QueryBuyAmount), bz)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			sdkErr := common.ParseSDKError(err.Error())
+			common.HandleErrorMsg(w, cliContext, sdkErr.Code, sdkErr.Message)
 			return
 		}
 
@@ -104,7 +109,8 @@ func queryRedeemableAssetsHandler(cliContext context.CLIContext) func(http.Respo
 		liquidity := r.URL.Query().Get("liquidity")
 		res, _, err := cliContext.QueryWithData(fmt.Sprintf("custom/%s/%s/%s/%s/%s", types.QuerierRoute, types.QueryRedeemableAssets, baseTokenName, quoteTokenName, liquidity), nil)
 		if err != nil {
-			common.HandleErrorMsg(w, cliContext, err.Error())
+			sdkErr := common.ParseSDKError(err.Error())
+			common.HandleErrorMsg(w, cliContext, sdkErr.Code, sdkErr.Message)
 			return
 		}
 		formatAndReturnResult(w, cliContext, res)
@@ -117,10 +123,10 @@ func formatAndReturnResult(w http.ResponseWriter, cliContext context.CLIContext,
 	result := common.GetBaseResponse(replaceStr)
 	resultJson, err := json.Marshal(result)
 	if err != nil {
-		common.HandleErrorMsg(w, cliContext, err.Error())
+		common.HandleErrorMsg(w, cliContext, common.CodeMarshalJSONFailed, err.Error())
 		return
 	}
-	resultJson = []byte(strings.Replace(string(resultJson), "\"" + replaceStr + "\"", string(data), 1))
+	resultJson = []byte(strings.Replace(string(resultJson), "\""+replaceStr+"\"", string(data), 1))
 
 	rest.PostProcessResponse(w, cliContext, resultJson)
 }

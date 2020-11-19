@@ -11,12 +11,19 @@ import (
 const (
 	DefaultCodespace = "common"
 
-	CodeInternalError              sdk.CodeType = 60001
-	CodeInvalidPaginateParam       sdk.CodeType = 60002
-	CodeCreateAddrFromBech32Failed sdk.CodeType = 60003
-	CodeMarshalJSONFailed          sdk.CodeType = 60004
-	CodeUnMarshalJSONFailed        sdk.CodeType = 60005 //"incorrectly formatted request data", err.Error()
-	CodeStrconvFailed              sdk.CodeType = 60006
+	CodeInternalError               sdk.CodeType = 60101
+	CodeInvalidPaginateParam        sdk.CodeType = 60102
+	CodeCreateAddrFromBech32Failed  sdk.CodeType = 60103
+	CodeMarshalJSONFailed           sdk.CodeType = 60104
+	CodeUnMarshalJSONFailed         sdk.CodeType = 60105 //"incorrectly formatted request data", err.Error()
+	CodeStrconvFailed               sdk.CodeType = 60106
+	CodeParseDecCoinFailed          sdk.CodeType = 60107
+	CodeBackendPluginNotEnabled     sdk.CodeType = 60108
+	CodeRecoverPanicGoroutineFailed sdk.CodeType = 60109
+	CodeUnknownBackendEndpoint      sdk.CodeType = 60110
+	CodeGetCandlesFailed            sdk.CodeType = 60111
+	CodeGetCandlesByMarketFailed    sdk.CodeType = 60112
+	CodeGetTickerByProductsFailed   sdk.CodeType = 60113
 )
 
 type SDKError struct {
