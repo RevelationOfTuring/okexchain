@@ -1,8 +1,6 @@
 package distribution
 
 import (
-	"fmt"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/okexchain/x/distribution/keeper"
 	"github.com/okex/okexchain/x/distribution/types"
@@ -22,8 +20,8 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgWithdrawValidatorCommission(ctx, msg, k)
 
 		default:
-			errMsg := fmt.Sprintf("unrecognized distribution message type: %T", msg)
-			return sdk.ErrUnknownRequest(errMsg).Result()
+			codespace := k.GetCodeSpace()
+			return types.ErrUnknownRequest(codespace).Result()
 		}
 	}
 }
@@ -32,7 +30,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 func handleMsgModifyWithdrawAddress(ctx sdk.Context, msg types.MsgSetWithdrawAddress, k keeper.Keeper) sdk.Result {
 	err := k.SetWithdrawAddr(ctx, msg.DelegatorAddress, msg.WithdrawAddress)
 	if err != nil {
-		return err.Result()
+		return types.ErrSetWithdrawAddrFailed(k.GetCodeSpace()).Result()
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -51,7 +49,8 @@ func handleMsgWithdrawValidatorCommission(ctx sdk.Context,
 
 	_, err := k.WithdrawValidatorCommission(ctx, msg.ValidatorAddress)
 	if err != nil {
-		return err.Result()
+		codespace := k.GetCodeSpace()
+		return types.ERRWithdrawValidatorCommissionFailed(codespace).Result()
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -72,8 +71,7 @@ func NewCommunityPoolSpendProposalHandler(k Keeper) govtypes.Handler {
 			return keeper.HandleCommunityPoolSpendProposal(ctx, k, c)
 
 		default:
-			errMsg := fmt.Sprintf("unrecognized distr proposal content type: %T", c)
-			return sdk.ErrUnknownRequest(errMsg)
+			return types.ErrUnknownRequest(k.GetCodeSpace())
 		}
 	}
 }

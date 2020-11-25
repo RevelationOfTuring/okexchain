@@ -102,7 +102,7 @@ func communityPoolHandler(cliCtx context.CLIContext, queryRoute string) http.Han
 
 		var result sdk.DecCoins
 		if err := cliCtx.Codec.UnmarshalJSON(res, &result); err != nil {
-			comm.HandleErrorMsg(w, cliCtx, types.CodeUnmarshalJSONFailed, err.Error())
+			comm.HandleErrorMsg(w, cliCtx, comm.CodeUnMarshalJSONFailed, err.Error())
 			return
 		}
 
@@ -115,6 +115,7 @@ func communityPoolHandler(cliCtx context.CLIContext, queryRoute string) http.Han
 func accumulatedCommissionHandlerFn(cliCtx context.CLIContext, queryRoute string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		validatorAddr, ok := checkValidatorAddressVar(w, r)
+		//needs ask
 		if !ok {
 			return
 		}

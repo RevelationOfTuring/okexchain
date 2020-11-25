@@ -11,7 +11,6 @@ import (
 	"github.com/okex/okexchain/x/distribution/types"
 	"github.com/okex/okexchain/x/gov"
 	govrest "github.com/okex/okexchain/x/gov/client/rest"
-	comm "github.com/okex/okexchain/x/common"
 )
 
 // RegisterRoutes register distribution REST routes.
@@ -44,7 +43,7 @@ func postProposalHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		msg := gov.NewMsgSubmitProposal(content, req.Deposit, req.Proposer)
 		if err := msg.ValidateBasic(); err != nil {
-			comm.HandleErrorMsg(w, cliCtx, types.CodeInvalideBasic, err.Error())
+			rest.WriteErrorResponse(w, int(types.CodeInvalideBasic), err.Error())
 			return
 		}
 

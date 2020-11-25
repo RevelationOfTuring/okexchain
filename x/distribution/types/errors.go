@@ -14,10 +14,16 @@ const (
 	CodeSetWithdrawAddrDisabled							CodeType          = 67802
 	CodeInvalideData									CodeType		  = 67803
 	CodeInvalideRoute									CodeType		  = 67804
-	CodeUnmarshalJSONFailed								CodeType		  = 67805
-	CodeInvalideBasic									CodeType		  = 67806
+	CodeInvalideBasic									CodeType		  = 67805
 	CodeWithdrawValidatorRewardsAndCommissionFailed		CodeType		  = 67806
-
+	CodeAccAddressFromBech32Failed						CodeType		  = 67807
+	CodeValAddressFromBech32							CodeType		  = 67808
+	CodeReadRESTReqFailed								CodeType		  = 67809
+	CodeSendCoinsFromModuleToAccountFailed				CodeType		  = 67810
+	CodeUnknownRequest									CodeType		  = 67811
+	CodeUnauthorized									CodeType		  = 67812
+	CodeSetWithdrawAddrFailed							CodeType		  = 67813
+	CodeWithdrawValidatorCommissionFailed				CodeType		  = 67814
 )
 
 func ErrNilDelegatorAddr(codespace sdk.CodespaceType) sdk.Error {
@@ -43,4 +49,19 @@ func ErrInvalidProposalAmount(codespace sdk.CodespaceType) sdk.Error {
 }
 func ErrEmptyProposalRecipient(codespace sdk.CodespaceType) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidInput, "invalid community pool spend proposal recipient")
+}
+func ErrSendCoinsFromModuleToAccountFailed(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeSendCoinsFromModuleToAccountFailed, "invalid withdrawAddr or commission")
+}
+func ErrUnknownRequest(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeUnknownRequest, "incorrectly formatted request data")
+}
+func ErrUnauthorized(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeUnknownRequest, "blacklisted from receiving external funds")
+}
+func ErrSetWithdrawAddrFailed(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeSetWithdrawAddrFailed, "delegators addr or withdraw addr is invalid")
+}
+func ERRWithdrawValidatorCommissionFailed(codespace sdk.CodespaceType) sdk.Error {
+	return sdk.NewError(codespace, CodeWithdrawValidatorCommissionFailed, "withdraw validator commission failed")
 }
