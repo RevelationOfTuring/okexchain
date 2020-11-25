@@ -220,21 +220,21 @@ func (k Keeper) CheckTokenPairUnderDexDelist(ctx sdk.Context, product string) (i
 func (k Keeper) Deposit(ctx sdk.Context, product string, from sdk.AccAddress, amount sdk.DecCoin) sdk.Error {
 	tokenPair := k.GetTokenPair(ctx, product)
 	if tokenPair == nil {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("failed to deposit because non-exist product: %s", product))
+		return types.ErrInvalidTokenPair(product)
 	}
 
 	if !tokenPair.Owner.Equals(from) {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("failed to deposit because %s is not the owner of product:%s", from.String(), product))
+		return types.ErrMustTokenPairOwner(from.String(), product)
 	}
 
 	if amount.Denom != sdk.DefaultBondDenom {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("failed to deposit because deposits only support %s token", sdk.DefaultBondDenom))
+		return types.ErrDepositOnlySupportDefaultBondDenom(sdk.DefaultBondDenom)
 	}
 
 	depositCoins := amount.ToCoins()
 	err := k.GetSupplyKeeper().SendCoinsFromAccountToModule(ctx, from, types.ModuleName, depositCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("failed to deposits because insufficient deposit coins(need %s)", depositCoins.String()))
+		return types.ErrInsufficientDepositCoins(err.Error(), depositCoins.String())
 	}
 
 	tokenPair.Deposits = tokenPair.Deposits.Add(amount)
@@ -246,19 +246,19 @@ func (k Keeper) Deposit(ctx sdk.Context, product string, from sdk.AccAddress, am
 func (k Keeper) Withdraw(ctx sdk.Context, product string, to sdk.AccAddress, amount sdk.DecCoin) sdk.Error {
 	tokenPair := k.GetTokenPair(ctx, product)
 	if tokenPair == nil {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("failed to withdraws because non-exist product: %s", product))
+		return types.ErrInvalidTokenPair(product)
 	}
 
 	if !tokenPair.Owner.Equals(to) {
-		return sdk.ErrInvalidAddress(fmt.Sprintf("failed to withdraws because %s is not the owner of product:%s", to.String(), product))
+		return types.ErrMustTokenPairOwner(to.String(), product)
 	}
 
 	if amount.Denom != sdk.DefaultBondDenom {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("failed to withdraws because deposits only support %s token", sdk.DefaultBondDenom))
+		return types.ErrWithdrawOnlySupportDefaultBondDenom(sdk.DefaultBondDenom)
 	}
 
 	if tokenPair.Deposits.IsLT(amount) {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("failed to withdraws because deposits:%s is less than withdraw:%s", tokenPair.Deposits.String(), amount.String()))
+		return types.ErrInsufficientWithdrawCoins(tokenPair.Deposits.String(), amount.String())
 	}
 
 	completeTime := ctx.BlockHeader().Time.Add(k.GetParams(ctx).WithdrawPeriod)
@@ -331,17 +331,17 @@ func (k Keeper) GetParamSubspace() params.Subspace {
 func (k Keeper) TransferOwnership(ctx sdk.Context, product string, from sdk.AccAddress, to sdk.AccAddress) sdk.Error {
 	tokenPair := k.GetTokenPair(ctx, product)
 	if tokenPair == nil {
-		return types.ErrTokenPairNotFound(fmt.Sprintf("non-exist product: %s", product))
+		return types.ErrTokenPairNotFound(product)
 	}
 
 	if !tokenPair.Owner.Equals(from) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("%s is not the owner of product(%s)", from.String(), product))
+		return types.ErrMustTokenPairOwner(from.String(), product)
 	}
 
 	// Withdraw
 	if tokenPair.Deposits.IsPositive() {
 		if err := k.Withdraw(ctx, product, from, tokenPair.Deposits); err != nil {
-			return sdk.ErrInternal(fmt.Sprintf("withdraw deposits:%s error:%s", tokenPair.Deposits.String(), err.Error()))
+			return types.ErrWithdrawDepositsError(tokenPair.Deposits.String(), err.Error())
 		}
 	}
 
@@ -433,8 +433,7 @@ func (k Keeper) CompleteWithdraw(ctx sdk.Context, addr sdk.AccAddress) error {
 	withdrawCoins := withdrawInfo.Deposits.ToCoins()
 	err := k.GetSupplyKeeper().SendCoinsFromModuleToAccount(ctx, types.ModuleName, withdrawInfo.Owner, withdrawCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("withdraw error: %s, insufficient deposit coins(need %s)",
-			err.Error(), withdrawCoins.String()))
+		return types.ErrInsufficientDepositCoins(err.Error(), withdrawCoins.String())
 	}
 	k.deleteWithdrawInfo(ctx, addr)
 	return nil

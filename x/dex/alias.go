@@ -67,7 +67,7 @@ var (
 	NewMsgWithdraw = types.NewMsgWithdraw
 
 	ErrTokenPairIsInvalid  = types.ErrTokenPairIsInvalid
-	ErrInvalidProduct      = types.ErrInvalidProduct
+	ErrInvalidTokenPair    = types.ErrInvalidTokenPair
 	ErrTokenPairNotFound   = types.ErrTokenPairNotFound
 	ErrDelistOwnerNotMatch = types.ErrDelistOwnerNotMatch
 )
