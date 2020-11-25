@@ -2,6 +2,7 @@ package rest
 
 import (
 	"fmt"
+	comm "github.com/okex/okexchain/x/common"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -63,7 +64,7 @@ func setDelegatorWithdrawalAddrHandlerFn(cliCtx context.CLIContext) http.Handler
 
 		msg := types.NewMsgSetWithdrawAddress(delAddr, req.WithdrawAddress)
 		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			comm.HandleErrorMsg(w, cliCtx, types.CodeInvalideBasic, err.Error())
 			return
 		}
 
@@ -94,7 +95,7 @@ func withdrawValidatorRewardsHandlerFn(cliCtx context.CLIContext) http.HandlerFu
 		// prepare multi-message transaction
 		msgs, err := common.WithdrawValidatorRewardsAndCommission(valAddr)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			comm.HandleErrorMsg(w, cliCtx, types.CodeWithdrawValidatorRewardsAndCommissionFailed, err.Error())
 			return
 		}
 

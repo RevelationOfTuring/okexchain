@@ -9,9 +9,15 @@ type CodeType = sdk.CodeType
 
 const (
 	DefaultCodespace            sdk.CodespaceType = "distr"
-	CodeInvalidInput            CodeType          = 103
-	CodeNoValidatorCommission   CodeType          = 105
-	CodeSetWithdrawAddrDisabled CodeType          = 106
+	CodeInvalidInput									CodeType          = 67800
+	CodeNoValidatorCommission							CodeType          = 67801
+	CodeSetWithdrawAddrDisabled							CodeType          = 67802
+	CodeInvalideData									CodeType		  = 67803
+	CodeInvalideRoute									CodeType		  = 67804
+	CodeUnmarshalJSONFailed								CodeType		  = 67805
+	CodeInvalideBasic									CodeType		  = 67806
+	CodeWithdrawValidatorRewardsAndCommissionFailed		CodeType		  = 67806
+
 )
 
 func ErrNilDelegatorAddr(codespace sdk.CodespaceType) sdk.Error {
