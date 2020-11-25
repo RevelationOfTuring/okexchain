@@ -19,6 +19,12 @@ const (
 	CodeGetBlockTxHashesFailed        sdk.CodeType = 62007
 	CodeOrderSideMustBuyOrSell        sdk.CodeType = 62008
 	CodeProductDoesNotExist           sdk.CodeType = 62009
+	CodeBackendPluginNotEnabled       sdk.CodeType = 62010
+	CodeRecoverPanicGoroutineFailed   sdk.CodeType = 62011
+	CodeUnknownBackendEndpoint        sdk.CodeType = 62012
+	CodeGetCandlesFailed              sdk.CodeType = 62013
+	CodeGetCandlesByMarketFailed      sdk.CodeType = 62014
+	CodeGetTickerByProductsFailed     sdk.CodeType = 62015
 )
 
 // invalid param side, must be buy or sell
