@@ -18,13 +18,6 @@ const (
 	CodeUnMarshalJSONFailed        sdk.CodeType = 60105 //"incorrectly formatted request data", err.Error()
 	CodeStrconvFailed              sdk.CodeType = 60106
 	CodeParseDecCoinFailed         sdk.CodeType = 60107
-
-	CodeBackendPluginNotEnabled     sdk.CodeType = 60108
-	CodeRecoverPanicGoroutineFailed sdk.CodeType = 60109
-	CodeUnknownBackendEndpoint      sdk.CodeType = 60110
-	CodeGetCandlesFailed            sdk.CodeType = 60111
-	CodeGetCandlesByMarketFailed    sdk.CodeType = 60112
-	CodeGetTickerByProductsFailed   sdk.CodeType = 60113
 )
 
 type SDKError struct {
