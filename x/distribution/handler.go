@@ -20,8 +20,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 			return handleMsgWithdrawValidatorCommission(ctx, msg, k)
 
 		default:
-			codespace := k.GetCodeSpace()
-			return types.ErrUnknownRequest(codespace).Result()
+			return types.ErrUnknownRequest(types.DefaultCodespace).Result()
 		}
 	}
 }
@@ -30,7 +29,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 func handleMsgModifyWithdrawAddress(ctx sdk.Context, msg types.MsgSetWithdrawAddress, k keeper.Keeper) sdk.Result {
 	err := k.SetWithdrawAddr(ctx, msg.DelegatorAddress, msg.WithdrawAddress)
 	if err != nil {
-		return types.ErrSetWithdrawAddrFailed(k.GetCodeSpace()).Result()
+		return types.ErrSetWithdrawAddrFailed(types.DefaultCodespace).Result()
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -49,8 +48,7 @@ func handleMsgWithdrawValidatorCommission(ctx sdk.Context,
 
 	_, err := k.WithdrawValidatorCommission(ctx, msg.ValidatorAddress)
 	if err != nil {
-		codespace := k.GetCodeSpace()
-		return types.ERRWithdrawValidatorCommissionFailed(codespace).Result()
+		return types.ERRWithdrawValidatorCommissionFailed(types.DefaultCodespace).Result()
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -71,7 +69,7 @@ func NewCommunityPoolSpendProposalHandler(k Keeper) govtypes.Handler {
 			return keeper.HandleCommunityPoolSpendProposal(ctx, k, c)
 
 		default:
-			return types.ErrUnknownRequest(k.GetCodeSpace())
+			return types.ErrUnknownRequest(types.DefaultCodespace)
 		}
 	}
 }

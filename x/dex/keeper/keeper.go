@@ -7,8 +7,6 @@ import (
 
 	"github.com/okex/okexchain/x/stream/exported"
 
-	"github.com/pkg/errors"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/okex/okexchain/x/dex/types"
@@ -211,7 +209,8 @@ func (k Keeper) CheckTokenPairUnderDexDelist(ctx sdk.Context, product string) (i
 		isDelisting = tp.Delisting
 	} else {
 		isDelisting = true
-		err = errors.Errorf("product %s doesn't exist", product)
+		msg := fmt.Sprintf("product %s doesn't exist", product)
+		err = types.ErrTokenPairNotFound(msg)
 	}
 	return isDelisting, err
 }

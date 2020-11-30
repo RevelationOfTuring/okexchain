@@ -2,12 +2,11 @@ package keeper
 
 import (
 	"fmt"
-
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	abci "github.com/tendermint/tendermint/abci/types"
-
+	"github.com/okex/okexchain/x/common"
 	"github.com/okex/okexchain/x/gov/types"
+	abci "github.com/tendermint/tendermint/abci/types"
 )
 
 // NewQuerier returns all query handlers
@@ -41,23 +40,23 @@ func queryParams(ctx sdk.Context, path []string, req abci.RequestQuery, keeper K
 	case types.ParamDeposit:
 		bz, err := codec.MarshalJSONIndent(keeper.Cdc(), keeper.GetDepositParams(ctx))
 		if err != nil {
-			return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+			return nil, common.ErrMarshalJSONFailed(err.Error())
 		}
 		return bz, nil
 	case types.ParamVoting:
 		bz, err := codec.MarshalJSONIndent(keeper.Cdc(), keeper.GetVotingParams(ctx))
 		if err != nil {
-			return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+			return nil, common.ErrMarshalJSONFailed(err.Error())
 		}
 		return bz, nil
 	case types.ParamTallying:
 		bz, err := codec.MarshalJSONIndent(keeper.Cdc(), keeper.GetTallyParams(ctx))
 		if err != nil {
-			return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+			return nil, common.ErrMarshalJSONFailed(err.Error())
 		}
 		return bz, nil
 	default:
-		return nil, sdk.ErrUnknownRequest(fmt.Sprintf("%s is not a valid query request path", req.Path))
+		return nil, types.ErrUnknownRequest(keeper.Codespace(), fmt.Sprintf("%s is not a valid query request path", req.Path))
 	}
 }
 
@@ -66,7 +65,7 @@ func queryProposal(ctx sdk.Context, path []string, req abci.RequestQuery, keeper
 	var params types.QueryProposalParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, types.ErrUnknownRequest(keeper.Codespace(),"incorrectly formatted request data")
 	}
 
 	proposal, ok := keeper.GetProposal(ctx, params.ProposalID)
@@ -76,7 +75,7 @@ func queryProposal(ctx sdk.Context, path []string, req abci.RequestQuery, keeper
 
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), proposal)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(err.Error())
 	}
 	return bz, nil
 }
@@ -86,13 +85,13 @@ func queryDeposit(ctx sdk.Context, path []string, req abci.RequestQuery, keeper 
 	var params types.QueryDepositParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, types.ErrUnknownRequest(keeper.Codespace(), sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	deposit, _ := keeper.GetDeposit(ctx, params.ProposalID, params.Depositor)
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), deposit)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }
@@ -102,13 +101,13 @@ func queryVote(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Kee
 	var params types.QueryVoteParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, common.ErrUnMarshalJSONFailed(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	vote, _ := keeper.GetVote(ctx, params.ProposalID, params.Voter)
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), vote)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }
@@ -118,14 +117,14 @@ func queryDeposits(ctx sdk.Context, path []string, req abci.RequestQuery, keeper
 	var params types.QueryProposalParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, common.ErrUnMarshalJSONFailed(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	deposits := keeper.GetDeposits(ctx, params.ProposalID)
 
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), deposits)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }
@@ -135,7 +134,7 @@ func queryTally(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Ke
 	var params types.QueryProposalParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, common.ErrUnMarshalJSONFailed(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	proposalID := params.ProposalID
@@ -159,7 +158,7 @@ func queryTally(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Ke
 
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), tallyResult)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }
@@ -170,14 +169,14 @@ func queryVotes(ctx sdk.Context, path []string, req abci.RequestQuery, keeper Ke
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, common.ErrUnMarshalJSONFailed(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	votes := keeper.GetVotes(ctx, params.ProposalID)
 
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), votes)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		return nil, common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }
@@ -187,14 +186,14 @@ func queryProposals(ctx sdk.Context, path []string, req abci.RequestQuery, keepe
 	var params types.QueryProposalsParams
 	err := keeper.Cdc().UnmarshalJSON(req.Data, &params)
 	if err != nil {
-		return nil, sdk.ErrUnknownRequest(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
+		return nil, common.ErrUnMarshalJSONFailed(sdk.AppendMsgToErr("incorrectly formatted request data", err.Error()))
 	}
 
 	proposals := keeper.GetProposalsFiltered(ctx, params.Voter, params.Depositor, params.ProposalStatus, params.Limit)
 
 	bz, err := codec.MarshalJSONIndent(keeper.Cdc(), proposals)
 	if err != nil {
-		return nil, sdk.ErrInternal(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
+		common.ErrMarshalJSONFailed(sdk.AppendMsgToErr("could not marshal result to JSON", err.Error()))
 	}
 	return bz, nil
 }

@@ -7,14 +7,22 @@ import (
 )
 
 const (
-	CodeParamTokenUnknown       sdk.CodeType = 61000
-	CodeInvalidDexList          sdk.CodeType = 61001
-	CodeInvalidBalanceNotEnough sdk.CodeType = 61002
-	CodeInvalidHeight           sdk.CodeType = 61003
-	CodeInvalidAsset            sdk.CodeType = 61004
-	CodeInvalidCommon           sdk.CodeType = 61005
-	CodeBlockedRecipient        sdk.CodeType = 61006
-	CodeSendDisabled            sdk.CodeType = 61007
+	CodeParamTokenUnknown					sdk.CodeType = 61000
+	CodeInvalidDexList          			sdk.CodeType = 61001
+	CodeInvalidBalanceNotEnough 			sdk.CodeType = 61002
+	CodeInvalidHeight          				sdk.CodeType = 61003
+	CodeInvalidAsset           				sdk.CodeType = 61004
+	CodeInvalidCommon           			sdk.CodeType = 61005
+	CodeBlockedRecipient        			sdk.CodeType = 61006
+	CodeSendDisabled            			sdk.CodeType = 61007
+	CodeSendCoinsFromAccountToModuleFailed	sdk.CodeType = 61008
+	CodeUnrecognizedLockCoinsType			sdk.CodeType = 61009
+	CodeFailedToUnlockAddress				sdk.CodeType = 61010
+	CodeUnknownRequest						sdk.CodeType = 61011
+	CodeInternal							sdk.CodeType = 61012
+	CodeInvalidCoins						sdk.CodeType = 61013
+	CodeInsufficientCoins					sdk.CodeType = 61014
+	CodeUnauthorized						sdk.CodeType = 61015
 )
 
 // ErrParamTokenUnknown returns an error when receive a unknown token
@@ -46,4 +54,36 @@ func ErrInvalidHeight(codespace sdk.CodespaceType, h, ch, max int64) sdk.Error {
 
 func ErrInvalidCommon(codespace sdk.CodespaceType, message string) sdk.Error {
 	return sdk.NewError(codespace, CodeInvalidCommon, message)
+}
+
+func ErrSendCoinsFromAccountToModuleFailed(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeSendCoinsFromAccountToModuleFailed, message)
+}
+
+func ErrUnrecognizedLockCoinsType(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeUnrecognizedLockCoinsType, message)
+}
+
+func ErrFailedToUnlockAddress(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeFailedToUnlockAddress, message)
+}
+
+func ErrUnknownRequest(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeUnknownRequest, message)
+}
+
+func ErrInternal(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeInternal, message)
+}
+
+func ErrInvalidCoins(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeInvalidCoins, message)
+}
+
+func ErrInsufficientCoins(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeInsufficientCoins, message)
+}
+
+func ErrUnauthorized(codespace sdk.CodespaceType, message string) sdk.Error {
+	return sdk.NewError(codespace, CodeUnauthorized, message)
 }

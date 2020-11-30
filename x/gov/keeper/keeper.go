@@ -298,7 +298,7 @@ func (keeper Keeper) CheckMsgSubmitProposal(ctx sdk.Context, msg types.MsgSubmit
 	err = common.HasSufficientCoins(msg.Proposer, keeper.bankKeeper.GetCoins(ctx, msg.Proposer),
 		msg.InitialDeposit)
 	if err != nil {
-		return sdk.NewError(types.DefaultCodespace, sdk.CodeInsufficientCoins, err.Error())
+		return types.ErrInsufficientCoins(types.DefaultCodespace, err.Error())
 	}
 	return nil
 }

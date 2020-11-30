@@ -2,7 +2,7 @@ package rest
 
 import (
 	"bytes"
-	"fmt"
+	"github.com/okex/okexchain/x/common"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -58,18 +58,18 @@ func postDelegationsHandlerFn(cliCtx context.CLIContext) http.HandlerFunc {
 
 		msg := types.NewMsgDeposit(req.DelegatorAddress, req.Amount)
 		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			common.HandleErrorMsg(w, cliCtx, types.CodeInvalidValidateBasic, err.Error())
 			return
 		}
 
 		fromAddr, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid address：%s", req.BaseReq.From))
+			common.HandleErrorMsg(w, cliCtx, common.CodeCreateAddrFromBech32Failed, err.Error())
 			return
 		}
 
 		if !bytes.Equal(fromAddr, req.DelegatorAddress) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "must use own delegator address")
+			common.HandleErrorMsg(w, cliCtx, types.CodeAddressNotEqual, err.Error())
 			return
 		}
 
@@ -92,18 +92,18 @@ func postUnbondingDelegationsHandlerFn(cliCtx context.CLIContext) http.HandlerFu
 
 		msg := types.NewMsgWithdraw(req.DelegatorAddress, req.Amount)
 		if err := msg.ValidateBasic(); err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			common.HandleErrorMsg(w, cliCtx, types.CodeInvalidValidateBasic, err.Error())
 			return
 		}
 
 		fromAddr, err := sdk.AccAddressFromBech32(req.BaseReq.From)
 		if err != nil {
-			rest.WriteErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("invalid address：%s", req.BaseReq.From))
+			common.HandleErrorMsg(w, cliCtx, common.CodeCreateAddrFromBech32Failed, err.Error())
 			return
 		}
 
 		if !bytes.Equal(fromAddr, req.DelegatorAddress) {
-			rest.WriteErrorResponse(w, http.StatusUnauthorized, "must use own delegator address")
+			common.HandleErrorMsg(w, cliCtx, types.CodeAddressNotEqual, err.Error())
 			return
 		}
 

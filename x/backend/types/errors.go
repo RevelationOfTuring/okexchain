@@ -25,6 +25,9 @@ const (
 	CodeGetCandlesFailed              sdk.CodeType = 62013
 	CodeGetCandlesByMarketFailed      sdk.CodeType = 62014
 	CodeGetTickerByProductsFailed     sdk.CodeType = 62015
+	CodeParamNotCorrect				  sdk.CodeType = 62016
+	CodeNoKlinesFunctionFound		  sdk.CodeType = 62017
+	CodeMarketkeeperNotInitialized	  sdk.CodeType = 62018
 )
 
 // invalid param side, must be buy or sell
@@ -40,4 +43,24 @@ func ErrProductIsRequired() sdk.Error {
 // product does not exist
 func ErrProductDoesNotExist(product string) sdk.Error {
 	return sdk.NewError(DefaultCodespace, CodeProductDoesNotExist, fmt.Sprintf("product %s does not exist", product))
+}
+
+func ErrBackendPluginNotEnabled(message string) sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeBackendPluginNotEnabled, message)
+}
+
+func ErrParamNotCorrect(message string) sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeParamNotCorrect, message)
+}
+
+func ErrNoKlinesFunctionFound(message string) sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeNoKlinesFunctionFound, message)
+}
+
+func ErrMarketkeeperNotInitialized(message string) sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeMarketkeeperNotInitialized, message)
+}
+
+func ErrUnknownBackendEndpoint(message string) sdk.Error {
+	return sdk.NewError(DefaultCodespace, CodeUnknownBackendEndpoint, message)
 }

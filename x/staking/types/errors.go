@@ -12,15 +12,18 @@ type CodeType = sdk.CodeType
 const (
 	DefaultCodespace sdk.CodespaceType = ModuleName
 
-	CodeInvalidValidator  CodeType = 101
-	CodeInvalidDelegation CodeType = 102
-	CodeInvalidInput      CodeType = 103
-	CodeInvalidAddress             = sdk.CodeInvalidAddress
-	CodeUnknownRequest             = sdk.CodeUnknownRequest
+	CodeInvalidValidator  		CodeType = 67000
+	CodeInvalidDelegation 		CodeType = 67001
+	CodeInvalidInput      		CodeType = 67002
+	CodeInvalidAddress             		 = sdk.CodeInvalidAddress
+	CodeUnknownRequest           	     = sdk.CodeUnknownRequest
 
-	CodeInvalidMinSelfDelegation CodeType = 104
-	CodeInvalidProxy             CodeType = 105
-	CodeInvalidShareAdding       CodeType = 106
+	CodeInvalidMinSelfDelegation CodeType = 67005
+	CodeInvalidProxy             CodeType = 67006
+	CodeInvalidShareAdding       CodeType = 67007
+	CodeParseHTTPArgsWithLimit	 CodeType = 67008
+	CodeInvalidValidateBasic	 CodeType = 67009
+	CodeAddressNotEqual			 CodeType = 67010
 )
 
 // ErrNilValidatorAddr returns an error when an empty validator address appears

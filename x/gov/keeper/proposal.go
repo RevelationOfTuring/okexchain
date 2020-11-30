@@ -18,7 +18,7 @@ func (keeper Keeper) SubmitProposal(ctx sdk.Context, content sdkGovTypes.Content
 
 	proposalID, err := keeper.GetProposalID(ctx)
 	if err != nil {
-		return sdkGovTypes.Proposal{}, err
+		return sdkGovTypes.Proposal{}, types.ErrInvalidProposer(keeper.Codespace(), err.Error())
 	}
 	// get the time now as the submit time
 	submitTime := ctx.BlockHeader().Time

@@ -103,7 +103,3 @@ func (k Keeper) WithdrawValidatorCommission(ctx sdk.Context, valAddr sdk.ValAddr
 
 	return commission, nil
 }
-
-func (k Keeper)GetCodeSpace() sdk.CodespaceType {
-	return k.codespace
-}

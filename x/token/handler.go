@@ -83,11 +83,12 @@ func handleMsgTokenIssue(ctx sdk.Context, keeper Keeper, msg types.MsgTokenIssue
 	// check upper bound
 	totalSupply, err := sdk.NewDecFromStr(msg.TotalSupply)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("invalid total supply(%s)", msg.TotalSupply)).Result()
+		message := fmt.Sprintf("invalid total supply(%s)", msg.TotalSupply)
+		return types.ErrInternal(types.DefaultCodespace, message).Result()
 	}
 	if totalSupply.GT(sdk.NewDec(types.TotalSupplyUpperbound)) {
-		return sdk.ErrInternal(fmt.Sprintf("total-supply(%s) exceeds the upper limit(%d)",
-			msg.TotalSupply, types.TotalSupplyUpperbound)).Result()
+		message := fmt.Sprintf("total-supply(%s) exceeds the upper limit(%d)", msg.TotalSupply, types.TotalSupplyUpperbound)
+		return types.ErrInternal(types.DefaultCodespace, message).Result()
 	}
 
 	token := types.Token{
@@ -102,9 +103,8 @@ func handleMsgTokenIssue(ctx sdk.Context, keeper Keeper, msg types.MsgTokenIssue
 	// generate a random symbol
 	newName, valid := addTokenSuffix(ctx, keeper, msg.OriginalSymbol)
 	if !valid {
-		return sdk.ErrInvalidCoins(fmt.Sprintf(
-			"temporarily failed to generate a unique symbol for %s. Try again.",
-			msg.OriginalSymbol)).Result()
+		message := fmt.Sprintf("temporarily failed to generate a unique symbol for %s. Try again.", msg.OriginalSymbol)
+		return types.ErrInvalidCoins(types.DefaultCodespace, message).Result()
 	}
 
 	token.Symbol = newName
@@ -113,13 +113,13 @@ func handleMsgTokenIssue(ctx sdk.Context, keeper Keeper, msg types.MsgTokenIssue
 	// set supply
 	err = keeper.supplyKeeper.MintCoins(ctx, types.ModuleName, coins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply mint coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply mint coins error:%s", err.Error())).Result()
 	}
 
 	// send coins to owner
 	err = keeper.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, token.Owner, coins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
 	}
 
 	// set token info
@@ -129,7 +129,7 @@ func handleMsgTokenIssue(ctx sdk.Context, keeper Keeper, msg types.MsgTokenIssue
 	feeDecCoins := keeper.GetParams(ctx).FeeIssue.ToCoins()
 	err = keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, token.Owner, keeper.feeCollectorName, feeDecCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient fee coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient fee coins(need %s)",
 			feeDecCoins.String())).Result()
 	}
 
@@ -160,27 +160,27 @@ func handleMsgTokenBurn(ctx sdk.Context, keeper Keeper, msg types.MsgTokenBurn, 
 
 	// check owner
 	if !token.Owner.Equals(msg.Owner) {
-		return sdk.ErrUnauthorized("Not the token's owner").Result()
+		return types.ErrUnauthorized(types.DefaultCodespace, "Not the token's owner").Result()
 	}
 
 	subCoins := msg.Amount.ToCoins()
 	// send coins to moduleAcc
 	err := keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Owner, types.ModuleName, subCoins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
 	}
 
 	// set supply
 	err = keeper.supplyKeeper.BurnCoins(ctx, types.ModuleName, subCoins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply burn coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply burn coins error:%s", err.Error())).Result()
 	}
 
 	// deduction fee
 	feeDecCoins := keeper.GetParams(ctx).FeeBurn.ToCoins()
 	err = keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Owner, keeper.feeCollectorName, feeDecCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient fee coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient fee coins(need %s)",
 			feeDecCoins.String())).Result()
 	}
 
@@ -207,33 +207,33 @@ func handleMsgTokenMint(ctx sdk.Context, keeper Keeper, msg types.MsgTokenMint, 
 	token := keeper.GetTokenInfo(ctx, msg.Amount.Denom)
 	// check owner
 	if !token.Owner.Equals(msg.Owner) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("%s is not the owner of token(%s)",
+		return types.ErrUnauthorized(types.DefaultCodespace, fmt.Sprintf("%s is not the owner of token(%s)",
 			msg.Owner.String(), msg.Amount.Denom)).Result()
 	}
 
 	// check whether token is mintable
 	if !token.Mintable {
-		return sdk.ErrUnauthorized(fmt.Sprintf("token(%s) is not mintable", token.Symbol)).Result()
+		return types.ErrUnauthorized(types.DefaultCodespace, fmt.Sprintf("token(%s) is not mintable", token.Symbol)).Result()
 	}
 
 	mintCoins := msg.Amount.ToCoins()
 	// set supply
 	err := keeper.supplyKeeper.MintCoins(ctx, types.ModuleName, mintCoins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply mint coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply mint coins error:%s", err.Error())).Result()
 	}
 
 	// send coins to acc
 	err = keeper.supplyKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, msg.Owner, mintCoins)
 	if err != nil {
-		return sdk.ErrInternal(fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("supply send coins error:%s", err.Error())).Result()
 	}
 
 	// deduction fee
 	feeDecCoins := keeper.GetParams(ctx).FeeMint.ToCoins()
 	err = keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Owner, keeper.feeCollectorName, feeDecCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient fee coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient fee coins(need %s)",
 			feeDecCoins.String())).Result()
 	}
 
@@ -268,7 +268,7 @@ func handleMsgMultiSend(ctx sdk.Context, keeper Keeper, msg types.MsgMultiSend, 
 		coinNum += len(transferUnit.Coins)
 		err := keeper.SendCoinsFromAccountToAccount(ctx, msg.From, transferUnit.To, transferUnit.Coins)
 		if err != nil {
-			return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient coins(need %s)",
+			return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient coins(need %s)",
 				transferUnit.Coins.String())).Result()
 		}
 		transfers += fmt.Sprintf("                          msg<To:%s,Coin:%s>\n", transferUnit.To, transferUnit.Coins)
@@ -298,7 +298,7 @@ func handleMsgSend(ctx sdk.Context, keeper Keeper, msg types.MsgSend, logger log
 
 	err := keeper.SendCoinsFromAccountToAccount(ctx, msg.FromAddress, msg.ToAddress, msg.Amount)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient coins(need %s)",
 			msg.Amount.String())).Result()
 	}
 
@@ -322,13 +322,13 @@ func handleMsgTransferOwnership(ctx sdk.Context, keeper Keeper, msg types.MsgTra
 	tokenInfo := keeper.GetTokenInfo(ctx, msg.Symbol)
 
 	if !tokenInfo.Owner.Equals(msg.FromAddress) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("%s is not the owner of token(%s)",
+		return types.ErrUnauthorized(types.DefaultCodespace, fmt.Sprintf("%s is not the owner of token(%s)",
 			msg.FromAddress.String(), msg.Symbol)).Result()
 	}
 
 	confirmOwnership, exist := keeper.GetConfirmOwnership(ctx, msg.Symbol)
 	if exist && !ctx.BlockTime().After(confirmOwnership.Expire) {
-		return sdk.ErrInternal(fmt.Sprintf("repeated transfer-ownership of token(%s) is not allowed", msg.Symbol)).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("repeated transfer-ownership of token(%s) is not allowed", msg.Symbol)).Result()
 	}
 
 	if msg.ToAddress.Equals(common.BlackHoleAddress()) { // transfer ownership to black hole
@@ -350,7 +350,7 @@ func handleMsgTransferOwnership(ctx sdk.Context, keeper Keeper, msg types.MsgTra
 	feeDecCoins := keeper.GetParams(ctx).FeeChown.ToCoins()
 	err := keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.FromAddress, keeper.feeCollectorName, feeDecCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient fee coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient fee coins(need %s)",
 			feeDecCoins.String())).Result()
 	}
 
@@ -377,16 +377,16 @@ func handleMsgTransferOwnership(ctx sdk.Context, keeper Keeper, msg types.MsgTra
 func handleMsgConfirmOwnership(ctx sdk.Context, keeper Keeper, msg types.MsgConfirmOwnership, logger log.Logger) sdk.Result {
 	confirmOwnership, exist := keeper.GetConfirmOwnership(ctx, msg.Symbol)
 	if !exist {
-		return sdk.ErrUnknownRequest(fmt.Sprintf("no transfer-ownership of token (%s) to confirm",
+		return types.ErrUnknownRequest(types.DefaultCodespace, fmt.Sprintf("no transfer-ownership of token (%s) to confirm",
 			msg.Address.String())).Result()
 	}
 	if ctx.BlockTime().After(confirmOwnership.Expire) {
 		// delete ownership confirming information
 		keeper.DeleteConfirmOwnership(ctx, confirmOwnership.Symbol)
-		return sdk.ErrInternal(fmt.Sprintf("transfer-ownership is expired, expire time (%s)", confirmOwnership.Expire.String())).Result()
+		return types.ErrInternal(types.DefaultCodespace, fmt.Sprintf("transfer-ownership is expired, expire time (%s)", confirmOwnership.Expire.String())).Result()
 	}
 	if !confirmOwnership.Address.Equals(msg.Address) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("%s is expected as the new owner",
+		return types.ErrUnauthorized(types.DefaultCodespace, fmt.Sprintf("%s is expected as the new owner",
 			confirmOwnership.Address.String())).Result()
 	}
 
@@ -419,11 +419,11 @@ func handleMsgTokenModify(ctx sdk.Context, keeper Keeper, msg types.MsgTokenModi
 	token := keeper.GetTokenInfo(ctx, msg.Symbol)
 	// check owner
 	if !token.Owner.Equals(msg.Owner) {
-		return sdk.ErrUnauthorized(fmt.Sprintf("%s is not the owner of token(%s)",
+		return types.ErrUnauthorized(types.DefaultCodespace, fmt.Sprintf("%s is not the owner of token(%s)",
 			msg.Owner.String(), msg.Symbol)).Result()
 	}
 	if !msg.IsWholeNameModified && !msg.IsDescriptionModified {
-		return sdk.ErrInternal("nothing modified").Result()
+		return types.ErrInternal(types.DefaultCodespace, "nothing modified").Result()
 	}
 	// modify
 	if msg.IsWholeNameModified {
@@ -439,7 +439,7 @@ func handleMsgTokenModify(ctx sdk.Context, keeper Keeper, msg types.MsgTokenModi
 	feeDecCoins := keeper.GetParams(ctx).FeeModify.ToCoins()
 	err := keeper.supplyKeeper.SendCoinsFromAccountToModule(ctx, msg.Owner, keeper.feeCollectorName, feeDecCoins)
 	if err != nil {
-		return sdk.ErrInsufficientCoins(fmt.Sprintf("insufficient fee coins(need %s)",
+		return types.ErrInsufficientCoins(types.DefaultCodespace, fmt.Sprintf("insufficient fee coins(need %s)",
 			feeDecCoins.String())).Result()
 	}
 
